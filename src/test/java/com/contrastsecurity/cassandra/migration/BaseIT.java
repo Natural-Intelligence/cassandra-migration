@@ -13,8 +13,8 @@ import org.junit.BeforeClass;
 
 public abstract class BaseIT {
     public static final String CASSANDRA__KEYSPACE = "cassandra_migration_test";
-    public static final String CASSANDRA_CONTACT_POINT = "localhost";
-    public static final int CASSANDRA_PORT = 9147;
+    public static final String CASSANDRA_CONTACT_POINT = "172.17.0.2";
+    public static final int CASSANDRA_PORT = 9042;
     public static final String CASSANDRA_USERNAME = "cassandra";
     public static final String CASSANDRA_PASSWORD = "cassandra";
 
@@ -35,7 +35,7 @@ public abstract class BaseIT {
 
     @Before
     public void createKeyspace() {
-        Statement statement = new SimpleStatement(
+        final Statement statement = new SimpleStatement(
                 "CREATE KEYSPACE " + CASSANDRA__KEYSPACE +
                         "  WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };"
         );
@@ -44,14 +44,14 @@ public abstract class BaseIT {
 
     @After
     public void dropKeyspace() {
-        Statement statement = new SimpleStatement(
+        final Statement statement = new SimpleStatement(
                 "DROP KEYSPACE " + CASSANDRA__KEYSPACE + ";"
         );
         getSession(getKeyspace()).execute(statement);
     }
 
     protected Keyspace getKeyspace() {
-        Keyspace ks = new Keyspace();
+        final Keyspace ks = new Keyspace();
         ks.setName(CASSANDRA__KEYSPACE);
         ks.getCluster().setContactpoints(CASSANDRA_CONTACT_POINT);
         ks.getCluster().setPort(CASSANDRA_PORT);
@@ -60,14 +60,14 @@ public abstract class BaseIT {
         return ks;
     }
 
-    private Session getSession(Keyspace keyspace) {
+    private Session getSession(final Keyspace keyspace) {
         if (session != null && !session.isClosed())
             return session;
 
-        com.datastax.driver.core.Cluster.Builder builder = new com.datastax.driver.core.Cluster.Builder();
+        final com.datastax.driver.core.Cluster.Builder builder = new com.datastax.driver.core.Cluster.Builder();
         builder.addContactPoints(CASSANDRA_CONTACT_POINT).withPort(CASSANDRA_PORT);
         builder.withCredentials(keyspace.getCluster().getUsername(), keyspace.getCluster().getPassword());
-        Cluster cluster = builder.build();
+        final Cluster cluster = builder.build();
         session = cluster.connect();
         return session;
     }
